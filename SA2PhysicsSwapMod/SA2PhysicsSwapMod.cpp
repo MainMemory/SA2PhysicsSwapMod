@@ -39,7 +39,19 @@ static const string charnames[] = {
 	"sadxamy",
 	"sadxgamma",
 	"sadxbig",
-	"sadxsupersonic"
+	"sadxsupersonic",
+	"heroessonic",
+	"heroesknuckles",
+	"heroestails",
+	"heroesshadow",
+	"heroesomega",
+	"heroesrouge",
+	"heroesamy",
+	"heroesbig",
+	"heroescream",
+	"heroesespio",
+	"heroesvector",
+	"heroescharmy"
 };
 
 static unordered_map<string, uint8_t> charnamemap;
