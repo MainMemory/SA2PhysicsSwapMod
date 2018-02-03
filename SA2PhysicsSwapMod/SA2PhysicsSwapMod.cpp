@@ -89,10 +89,10 @@ extern "C"
 			charnamemap[charnames[i]] = i;
 		HRSRC hres = FindResource(moduleHandle, MAKEINTRESOURCE(IDR_MISC1), L"MISC");
 		const PhysicsData *tmp = (PhysicsData*)LockResource(LoadResource(moduleHandle, hres));
-		const IniFile *settings = new IniFile(std::string(path) + "\\mod.ini");
+		const IniFile *settings = new IniFile(std::string(path) + "\\config.ini");
 		for (uint8_t i = 0; i < LengthOfArray(keynames); i++)
 		{
-			uint8_t c = ParseCharacterID(settings->getString("", keynames[i] + "Physics"), (Characters)i);
+			uint8_t c = ParseCharacterID(settings->getString("", keynames[i]), (Characters)i);
 			if (i == c) continue;
 			memcpy(&PhysicsArray[i], &tmp[c], offsetof(PhysicsData, anonymous_27));
 			PhysicsArray[i].Gravity = tmp[c].Gravity;
