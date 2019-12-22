@@ -40,13 +40,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="phys.bin">
+    <CopyFileToFolders Include="phys.bin">
       <Filter>Resource Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="SA2PhysicsSwapMod.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
