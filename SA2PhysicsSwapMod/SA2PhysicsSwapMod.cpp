@@ -6,12 +6,22 @@
 #include "SA2ModLoader.h"
 #include "IniFile.hpp"
 #include <algorithm>
+#include <fstream>
 using std::unordered_map;
 using std::string;
 
 HMODULE moduleHandle;
 
 static const string charnames[] = {
+	"sadxsonic",
+	"sadxeggman",
+	"sadxtails",
+	"sadxknuckles",
+	"sadxtikal",
+	"sadxamy",
+	"sadxgamma",
+	"sadxbig",
+	"sadxsupersonic",
 	"sonic",
 	"shadow",
 	"tails",
@@ -31,15 +41,6 @@ static const string charnames[] = {
 	"chaos",
 	"unused2",
 	"unused3",
-	"sadxsonic",
-	"sadxeggman",
-	"sadxtails",
-	"sadxknuckles",
-	"sadxtikal",
-	"sadxamy",
-	"sadxgamma",
-	"sadxbig",
-	"sadxsupersonic",
 	"heroessonic",
 	"heroesknuckles",
 	"heroestails",
@@ -67,7 +68,7 @@ static string trim(const string &s)
 	return s.substr(st, (ed + 1) - st);
 }
 
-static uint8_t ParseCharacterID(const string &str, Characters def)
+static uint8_t ParseCharacterID(const string &str, int def)
 {
 	string s = trim(str);
 	transform(s.begin(), s.end(), s.begin(), ::tolower);
@@ -75,6 +76,19 @@ static uint8_t ParseCharacterID(const string &str, Characters def)
 	if (ch != charnamemap.end())
 		return ch->second;
 	return def;
+}
+
+static PhysicsData* GetPhysicsFile(const char* modPath)
+{
+	auto physPath = string(modPath) + "\\phys.bin";
+	auto physFile = std::ifstream(physPath);
+	auto expectedFileSize = LengthOfArray(charnames) * sizeof(PhysicsData);
+	auto physDataArray = new char[expectedFileSize];
+
+	physFile.seekg(0, std::ios::beg);
+	physFile.read(physDataArray, expectedFileSize);
+
+	return (PhysicsData*)physDataArray;
 }
 
 static const string keynames[] = { "Sonic", "Shadow", "Tails", "Eggman", "Knuckles", "Rouge", "MechTails", "MechEggman", "Amy", "SuperSonic", "SuperShadow", "Unused", "MetalSonic", "ChaoWalker", "DarkChaoWalker", "Tikal", "Chaos" };
@@ -87,17 +101,20 @@ extern "C"
 	{
 		for (uint8_t i = 0; i < LengthOfArray(charnames); i++)
 			charnamemap[charnames[i]] = i;
-		HRSRC hres = FindResource(moduleHandle, MAKEINTRESOURCE(IDR_MISC1), L"MISC");
-		const PhysicsData *tmp = (PhysicsData*)LockResource(LoadResource(moduleHandle, hres));
+
+		const PhysicsData* physicsData = GetPhysicsFile(path);
 		const IniFile *settings = new IniFile(std::string(path) + "\\config.ini");
+		const int SADX_CHARACTER_COUNT = 9;
+		
 		for (uint8_t i = 0; i < LengthOfArray(keynames); i++)
 		{
-			uint8_t c = ParseCharacterID(settings->getString("", keynames[i]), (Characters)i);
-			if (i == c) continue;
-			memcpy(&PhysicsArray[i], &tmp[c], offsetof(PhysicsData, anonymous_27));
-			PhysicsArray[i].Gravity = tmp[c].Gravity;
+			uint8_t c = ParseCharacterID(settings->getString("", keynames[i]), i + SADX_CHARACTER_COUNT);
+			memcpy(&PhysicsArray[i], &physicsData[c], offsetof(PhysicsData, anonymous_27));
+			PhysicsArray[i].Gravity = physicsData[c].Gravity;
 		}
+		
 		delete settings;
+		delete[] physicsData;
 	}
 
 	__declspec(dllexport) ModInfo SA2ModInfo = { ModLoaderVer };
